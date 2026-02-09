@@ -3,75 +3,349 @@
 <head>
   <meta charset="UTF-8">
   <title>Graffiti Text Generator</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    @font-face {
+      font-family: "Ganevia";
+      src: url("Ganevia.ttf");
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #000; /* Svart bakgrund */
+      font-family: sans-serif;
+    }
+    
+    /* CANVAS - VIKTIGT! */
+    #bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      background: #1a1a1a; /* Mörkgrå så vi ser den */
+    }
+    
+    /* UI OVANPÅ */
+    .ui {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      background: rgba(0, 0, 0, 0.95);
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      color: white;
+      min-width: 320px;
+      border: 2px solid #444;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+    }
+    
+    input, button {
+      margin: 5px;
+      padding: 8px 12px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid #666;
+    }
+    
+    button {
+      background: #444;
+      color: white;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    button:hover {
+      background: #666;
+    }
+    
+    .btn-primary {
+      background: #2196F3;
+      border-color: #1976D2;
+      font-weight: bold;
+    }
+    
+    .btn-primary:hover {
+      background: #42A5F5;
+    }
+    
+    .btn-success {
+      background: #4CAF50;
+      border-color: #388E3C;
+      font-weight: bold;
+    }
+    
+    label {
+      margin: 0 10px;
+      color: white;
+      font-size: 14px;
+    }
+    
+    #textInput {
+      width: 200px;
+      text-align: center;
+      font-size: 16px;
+    }
+    
+    #sliderLabel {
+      color: #2196F3;
+      font-weight: bold;
+      margin: 5px 0;
+    }
+    
+    .help-text {
+      margin-top: 15px;
+      font-size: 12px;
+      color: #aaa;
+      line-height: 1.5;
+    }
+  </style>
 </head>
 <body>
 
-  <!-- Canvas för doodles + text -->
+  <!-- Canvas bakgrund -->
   <canvas id="bg"></canvas>
 
+  <!-- UI ovanpå -->
   <div class="ui">
-    <!-- Text input -->
-    <input id="textInput" placeholder="Skriv din text..." />
-    
-    <br><br>
-
-    <!-- Textfärg & outline -->
-    <label>Textfärg: <input type="color" id="textColor" value="#ffffff"></label>
-    <label>Outline-färg: <input type="color" id="outlineColor" value="#000000"></label>
-
-    <br><br>
-
-    <!-- Doodle selector -->
-    <div class="doodle-section">
-      <label>Välj doodle (1-8):</label><br>
-      <input type="range" id="doodleSlider" min="1" max="8" value="1">
-      <p id="sliderLabel">Doodle 1</p>
-      
-      <!-- VIKTIG: Separat knapp för att lägga till doodle -->
-      <button id="addDoodleBtn" class="btn-primary">➕ Lägg till vald doodle</button>
-      <button id="removeDoodleBtn">➖ Ta bort senaste</button>
-      <button id="clearDoodlesBtn">🗑️ Rensa alla</button>
-    </div>
-
-    <br>
-
-    <!-- Toggle bakgrund -->
-    <label>
-      <input type="checkbox" id="toggleBg" checked>
-      Visa doodles
-    </label>
-
-    <br><br>
-
-    <!-- Text-kontroller -->
-    <div class="text-section">
-      <button id="updateTextBtn" class="btn-primary">🔄 Uppdatera text</button>
-      <button id="resetTextBtn">❌ Rensa text</button>
-    </div>
-
-    <br><br>
-
-    <!-- Export knapp -->
-    <button id="exportBtn" class="btn-success">💾 Spara som PNG</button>
-
-    <br><br>
-
-    <!-- Gå till clothing editor -->
-    <button id="goToEditorBtn">👕 Roblox Clothing Editor</button>
+    <input id="textInput" placeholder="Skriv din text..." value="Bambuu" />
     
     <br><br>
     
-    <!-- Hjälp -->
+    <label>Text: <input type="color" id="textColor" value="#ffffff"></label>
+    <label>Outline: <input type="color" id="outlineColor" value="#000000"></label>
+    
+    <br><br>
+    
+    <label>Doodle: <input type="range" id="doodleSlider" min="1" max="8" value="1"></label>
+    <p id="sliderLabel">Doodle 1</p>
+    
+    <button id="addDoodleBtn" class="btn-primary">➕ Lägg till doodle</button>
+    <button id="removeDoodleBtn">➖ Ta bort</button>
+    <button id="clearDoodlesBtn">🗑️ Rensa</button>
+    
+    <br><br>
+    
+    <label><input type="checkbox" id="toggleBg" checked> Visa doodles</label>
+    
+    <br><br>
+    
+    <button id="exportBtn" class="btn-success">💾 Spara PNG</button>
+    <button id="goToEditorBtn">👕 Clothing Editor</button>
+    
     <div class="help-text">
-      <small>💡 <strong>Snabbguide:</strong></small><br>
-      <small>1. Välj doodle med slider → klicka <strong>\"Lägg till\"</strong></small><br>
-      <small>2. <strong>Dra</strong> för att flytta | <strong>Scroll</strong> för att skala</small><br>
-      <small>3. Klicka på doodle för att <strong>välja</strong> den</small><br>
-      <small>4. <strong>Delete</strong> tar bort vald doodle</small>
+      💡 Välj nummer → klicka <b>"Lägg till"</b><br>
+      🖱️ <b>Dra</b> för att flytta | <b>Scroll</b> för skala<br>
+      ⌨️ <b>Delete</b> tar bort senaste doodle
     </div>
   </div>
 
-  <script src=\"script.js\"></script>
+  <script>
+    // ===== INITIERING =====
+    const canvas = document.getElementById("bg");
+    const ctx = canvas.getContext("2d");
+    
+    // Sätt storlek och rita direkt
+    function init() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      console.log("Canvas initierad:", canvas.width, "x", canvas.height);
+      draw();
+    }
+    
+    // Vänta tills ALLT laddat (inklusive bilder om de finns)
+    window.onload = init;
+    window.onresize = init;
+    
+    // ===== DOODLES =====
+    const doodleImages = [];
+    for (let i = 1; i <= 8; i++) {
+      const img = new Image();
+      img.src = "doodle" + i + ".png";
+      doodleImages.push(img);
+    }
+    
+    let doodles = [];
+    
+    // ===== UI KONTROLLER =====
+    const textInput = document.getElementById("textInput");
+    const textColor = document.getElementById("textColor");
+    const outlineColor = document.getElementById("outlineColor");
+    const slider = document.getElementById("doodleSlider");
+    const sliderLabel = document.getElementById("sliderLabel");
+    const toggleBg = document.getElementById("toggleBg");
+    
+    // ===== KNAPPAR =====
+    
+    // Lägg till doodle
+    document.getElementById("addDoodleBtn").onclick = function() {
+      const idx = parseInt(slider.value) - 1;
+      const img = doodleImages[idx];
+      
+      if (!img.complete) {
+        alert("Vänta tills bilden laddat... Försök igen om en sekund.");
+        return;
+      }
+      
+      doodles.push({
+        img: img,
+        x: canvas.width/2 - (img.width * 0.3)/2,
+        y: canvas.height/2 - (img.height * 0.3)/2,
+        scale: 0.3
+      });
+      
+      draw();
+      console.log("Doodle tillagd:", idx + 1);
+    };
+    
+    // Ta bort senaste
+    document.getElementById("removeDoodleBtn").onclick = function() {
+      if (doodles.length > 0) {
+        doodles.pop();
+        draw();
+      }
+    };
+    
+    // Rensa alla
+    document.getElementById("clearDoodlesBtn").onclick = function() {
+      doodles = [];
+      draw();
+    };
+    
+    // Slider ändring
+    slider.oninput = function() {
+      sliderLabel.innerText = "Doodle " + slider.value;
+    };
+    
+    // Export
+    document.getElementById("exportBtn").onclick = function() {
+      const link = document.createElement("a");
+      link.download = "graffiti_" + Date.now() + ".png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    };
+    
+    // Navigation
+    document.getElementById("goToEditorBtn").onclick = function() {
+      location.href = "editor.html";
+    };
+    
+    // ===== RITA FUNKTION =====
+    function draw() {
+      // 1. Rensa canvas med bakgrundsfärg (VIKTIGT!)
+      ctx.fillStyle = "#1a1a1a";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // 2. Rita doodles (om aktiverat)
+      if (toggleBg.checked) {
+        doodles.forEach(function(d) {
+          const w = d.img.width * d.scale;
+          const h = d.img.height * d.scale;
+          ctx.drawImage(d.img, d.x, d.y, w, h);
+        });
+      }
+      
+      // 3. Rita text (ALLTID)
+      const text = textInput.value || "Skriv något...";
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      
+      ctx.font = "bold 80px Ganevia, Arial, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      
+      // Outline
+      ctx.lineWidth = 8;
+      ctx.strokeStyle = outlineColor.value;
+      ctx.strokeText(text, cx, cy);
+      
+      // Fyllnad
+      ctx.fillStyle = textInput.value ? textColor.value : "#666";
+      ctx.fillText(text, cx, cy);
+    }
+    
+    // Live uppdatering av text/färger
+    textInput.oninput = draw;
+    textColor.oninput = draw;
+    outlineColor.oninput = draw;
+    toggleBg.onchange = draw;
+    
+    // ===== DRAG & DROP =====
+    let selectedDoodle = null;
+    let offsetX = 0;
+    let offsetY = 0;
+    
+    canvas.onmousedown = function(e) {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      
+      // Kolla bakifrån (överst först)
+      for (let i = doodles.length - 1; i >= 0; i--) {
+        const d = doodles[i];
+        const w = d.img.width * d.scale;
+        const h = d.img.height * d.scale;
+        
+        if (mx >= d.x && mx <= d.x + w && my >= d.y && my <= d.y + h) {
+          selectedDoodle = d;
+          offsetX = mx - d.x;
+          offsetY = my - d.y;
+          
+          // Flytta till överst
+          doodles.splice(i, 1);
+          doodles.push(d);
+          draw();
+          break;
+        }
+      }
+    };
+    
+    canvas.onmousemove = function(e) {
+      if (selectedDoodle) {
+        const rect = canvas.getBoundingClientRect();
+        selectedDoodle.x = e.clientX - rect.left - offsetX;
+        selectedDoodle.y = e.clientY - rect.top - offsetY;
+        draw();
+      }
+    };
+    
+    canvas.onmouseup = function() {
+      selectedDoodle = null;
+    };
+    
+    canvas.onmouseleave = function() {
+      selectedDoodle = null;
+    };
+    
+    // Scroll för skala
+    canvas.onwheel = function(e) {
+      if (!selectedDoodle) return;
+      e.preventDefault();
+      
+      const factor = e.deltaY > 0 ? 0.9 : 1.1;
+      selectedDoodle.scale *= factor;
+      selectedDoodle.scale = Math.max(0.1, Math.min(3, selectedDoodle.scale));
+      draw();
+    };
+    
+    // Delete tangent
+    document.onkeydown = function(e) {
+      if (e.key === "Delete" && document.activeElement !== textInput) {
+        doodles.pop();
+        draw();
+      }
+    };
+  </script>
 </body>
 </html>
