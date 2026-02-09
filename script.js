@@ -1,12 +1,9 @@
-const bg = document.getElementById("bg");
-const ctx = bg.getContext("2d");
-
-const exportCanvas = document.getElementById("export");
-const exportCtx = exportCanvas.getContext("2d");
+const canvas = document.getElementById("bg");
+const ctx = canvas.getContext("2d");
 
 function resize() {
-  bg.width = innerWidth;
-  bg.height = innerHeight;
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
 }
 window.addEventListener("resize", resize);
 resize();
@@ -23,41 +20,9 @@ const slider = document.getElementById("doodleSlider");
 const label = document.getElementById("sliderLabel");
 const toggleBg = document.getElementById("toggleBg");
 
-// ---- SPRAY PARTICLES ----
-let particles = [];
-
-function spray(x, y) {
-  for (let i = 0; i < 20; i++) {
-    particles.push({
-      x, y,
-      dx: (Math.random() - 0.5) * 6,
-      dy: (Math.random() - 0.5) * 6,
-      life: 30
-    });
-  }
-}
-
-function updateSpray() {
-  particles.forEach(p => {
-    p.x += p.dx;
-    p.y += p.dy;
-    p.life--;
-  });
-  particles = particles.filter(p => p.life > 0);
-}
-
-function drawSpray() {
-  ctx.fillStyle = "rgba(255,255,255,0.6)";
-  particles.forEach(p => {
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
-    ctx.fill();
-  });
-}
-
-// ---- DRAW ----
+// ---- DRAW DOODLES ----
 function drawDoodles() {
-  ctx.clearRect(0, 0, bg.width, bg.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   if (!toggleBg.checked) return;
 
   const img = doodles[slider.value - 1];
@@ -67,52 +32,86 @@ function drawDoodles() {
     const size = Math.random() * 220 + 120;
     ctx.drawImage(
       img,
-      Math.random() * bg.width,
-      Math.random() * bg.height,
+      Math.random() * canvas.width,
+      Math.random() * canvas.height,
       size,
       size
     );
   }
 }
+drawDoodles();
 
-function loop() {
-  drawDoodles();
-  updateSpray();
-  drawSpray();
-  requestAnimationFrame(loop);
-}
-loop();
-
-// ---- UI ----
+// ---- UPDATE ON SLIDER ----
 slider.addEventListener("input", () => {
   label.innerText = `Doodle ${slider.value}`;
-  spray(innerWidth / 2, innerHeight / 2);
+  drawDoodles();
 });
 
 toggleBg.addEventListener("change", () => {
-  spray(innerWidth / 2, innerHeight / 2);
+  drawDoodles();
 });
 
+// ---- RENDER TEXT ----
 function renderText() {
-  document.getElementById("output").innerText =
-    document.getElementById("textInput").value;
-  spray(innerWidth / 2, innerHeight / 2);
+  const text = document.getElementById("textInput").value;
+  const textColor = document.getElementById("textColor").value;
+  const outlineColor = document.getElementById("outlineColor").value;
+
+  drawDoodles(); // rita bakgrund först
+
+  ctx.font = "80px Ganevia";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  // Outline
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = outlineColor;
+  ctx.strokeText(text, canvas.width / 2, canvas.height / 2);
+
+  // Fill
+  ctx.fillStyle = textColor;
+  ctx.fillText(text, canvas.width / 2, canvas.height / 2);
 }
 
-// ---- EXPORT PNG (TRANSPARENT) ----
+// ---- EXPORT PNG ----
 function exportPNG() {
+  const exportCanvas = document.createElement("canvas");
   exportCanvas.width = 1024;
   exportCanvas.height = 1024;
-  exportCtx.clearRect(0, 0, 1024, 1024);
+  const exportCtx = exportCanvas.getContext("2d");
+
+  // Doodles (om bakgrund är på)
+  if (toggleBg.checked) {
+    const img = doodles[slider.value - 1];
+    if (img.complete) {
+      for (let i = 0; i < 14; i++) {
+        const size = Math.random() * 220 + 120;
+        exportCtx.drawImage(
+          img,
+          Math.random() * 1024,
+          Math.random() * 1024,
+          size * 1024 / canvas.width,
+          size * 1024 / canvas.height
+        );
+      }
+    }
+  }
+
+  // Text
+  const text = document.getElementById("textInput").value;
+  const textColor = document.getElementById("textColor").value;
+  const outlineColor = document.getElementById("outlineColor").value;
 
   exportCtx.font = "120px Ganevia";
   exportCtx.textAlign = "center";
   exportCtx.textBaseline = "middle";
-  exportCtx.fillStyle = "white";
-  exportCtx.fillText(
-    document.getElementById("output").innerText,
-    512, 512
-  );
+
+  exportCtx.lineWidth = 8;
+  exportCtx.strokeStyle = outlineColor;
+  exportCtx.strokeText(text, 512, 512);
+
+  exportCtx.fillStyle = textColor;
+  exportCtx.fillText(text, 512, 512);
 
   const link = document.createElement("a");
   link.download = "graffiti.png";
