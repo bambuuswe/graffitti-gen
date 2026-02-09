@@ -22,17 +22,19 @@
 
     <br><br>
 
-    <!-- Doodle slider -->
-    <label>Välj doodle:</label>
-    <input type="range" id="doodleSlider" min="1" max="8" value="1">
-    <p id="sliderLabel">Doodle 1</p>
-    
-    <!-- Knappar för doodles -->
-    <button id="addDoodleBtn">➕ Lägg till doodle</button>
-    <button id="removeDoodleBtn">➖ Ta bort senaste</button>
-    <button id="clearDoodlesBtn">🗑️ Rensa alla</button>
+    <!-- Doodle selector -->
+    <div class="doodle-section">
+      <label>Välj doodle (1-8):</label><br>
+      <input type="range" id="doodleSlider" min="1" max="8" value="1">
+      <p id="sliderLabel">Doodle 1</p>
+      
+      <!-- VIKTIG: Separat knapp för att lägga till doodle -->
+      <button id="addDoodleBtn" class="btn-primary">➕ Lägg till vald doodle</button>
+      <button id="removeDoodleBtn">➖ Ta bort senaste</button>
+      <button id="clearDoodlesBtn">🗑️ Rensa alla</button>
+    </div>
 
-    <br><br>
+    <br>
 
     <!-- Toggle bakgrund -->
     <label>
@@ -42,24 +44,34 @@
 
     <br><br>
 
+    <!-- Text-kontroller -->
+    <div class="text-section">
+      <button id="updateTextBtn" class="btn-primary">🔄 Uppdatera text</button>
+      <button id="resetTextBtn">❌ Rensa text</button>
+    </div>
+
+    <br><br>
+
     <!-- Export knapp -->
-    <button id="exportBtn">💾 Export PNG</button>
+    <button id="exportBtn" class="btn-success">💾 Spara som PNG</button>
 
     <br><br>
 
     <!-- Gå till clothing editor -->
-    <button id="goToEditorBtn">
-      👕 Roblox Clothing Editor
-    </button>
+    <button id="goToEditorBtn">👕 Roblox Clothing Editor</button>
     
     <br><br>
     
     <!-- Hjälp -->
-    <small style="color: #aaa;">
-      💡 Tips: Drag för att flytta doodles | Scroll för att skala | Delete för att ta bort
-    </small>
+    <div class="help-text">
+      <small>💡 <strong>Snabbguide:</strong></small><br>
+      <small>1. Välj doodle med slider → klicka <strong>\"Lägg till\"</strong></small><br>
+      <small>2. <strong>Dra</strong> för att flytta | <strong>Scroll</strong> för att skala</small><br>
+      <small>3. Klicka på doodle för att <strong>välja</strong> den</small><br>
+      <small>4. <strong>Delete</strong> tar bort vald doodle</small>
+    </div>
   </div>
 
-  <script src="script.js"></script>
+  <script src=\"script.js\"></script>
 </body>
 </html>
