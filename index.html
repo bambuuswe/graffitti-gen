@@ -152,200 +152,217 @@
   </div>
 
   <script>
-    // ===== INITIERING =====
-    const canvas = document.getElementById("bg");
-    const ctx = canvas.getContext("2d");
+  // ===== INITIERING =====
+  const canvas = document.getElementById("bg");
+  const ctx = canvas.getContext("2d");
+  
+  function init() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    draw();
+  }
+  
+  window.onload = init;
+  window.onresize = init;
+  
+  // ===== DOODLES =====
+  const doodleImages = [];
+  for (let i = 1; i <= 8; i++) {
+    const img = new Image();
+    img.src = "doodle" + i + ".png";
+    doodleImages.push(img);
+  }
+  
+  let doodles = [];
+  
+  // ===== UI KONTROLLER =====
+  const textInput = document.getElementById("textInput");
+  const textColor = document.getElementById("textColor");
+  const outlineColor = document.getElementById("outlineColor");
+  const slider = document.getElementById("doodleSlider");
+  const sliderLabel = document.getElementById("sliderLabel");
+  const toggleBg = document.getElementById("toggleBg");
+  
+  // ===== KNAPPAR =====
+  document.getElementById("addDoodleBtn").onclick = function() {
+    const idx = parseInt(slider.value) - 1;
+    const img = doodleImages[idx];
     
-    // Sätt storlek och rita direkt
-    function init() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      console.log("Canvas initierad:", canvas.width, "x", canvas.height);
+    if (!img.complete) {
+      alert("Vänta tills bilden laddat...");
+      return;
+    }
+    
+    doodles.push({
+      img: img,
+      x: canvas.width/2 - (img.width * 0.3)/2,
+      y: canvas.height/2 - (img.height * 0.3)/2,
+      scale: 0.3
+    });
+    
+    draw();
+  };
+  
+  document.getElementById("removeDoodleBtn").onclick = function() {
+    if (doodles.length > 0) {
+      doodles.pop();
       draw();
     }
+  };
+  
+  document.getElementById("clearDoodlesBtn").onclick = function() {
+    doodles = [];
+    draw();
+  };
+  
+  slider.oninput = function() {
+    sliderLabel.innerText = "Doodle " + slider.value;
+  };
+  
+  // ===== TRANSPARENT EXPORT =====
+  document.getElementById("exportBtn").onclick = function() {
+    const exportCanvas = document.createElement("canvas");
+    exportCanvas.width = 1024;
+    exportCanvas.height = 1024;
+    const exportCtx = exportCanvas.getContext("2d");
     
-    // Vänta tills ALLT laddat (inklusive bilder om de finns)
-    window.onload = init;
-    window.onresize = init;
+    // INGEN bakgrundsfärg - bara clearRect för transparens!
+    exportCtx.clearRect(0, 0, 1024, 1024);
     
-    // ===== DOODLES =====
-    const doodleImages = [];
-    for (let i = 1; i <= 8; i++) {
-      const img = new Image();
-      img.src = "doodle" + i + ".png";
-      doodleImages.push(img);
-    }
-    
-    let doodles = [];
-    
-    // ===== UI KONTROLLER =====
-    const textInput = document.getElementById("textInput");
-    const textColor = document.getElementById("textColor");
-    const outlineColor = document.getElementById("outlineColor");
-    const slider = document.getElementById("doodleSlider");
-    const sliderLabel = document.getElementById("sliderLabel");
-    const toggleBg = document.getElementById("toggleBg");
-    
-    // ===== KNAPPAR =====
-    
-    // Lägg till doodle
-    document.getElementById("addDoodleBtn").onclick = function() {
-      const idx = parseInt(slider.value) - 1;
-      const img = doodleImages[idx];
-      
-      if (!img.complete) {
-        alert("Vänta tills bilden laddat... Försök igen om en sekund.");
-        return;
-      }
-      
-      doodles.push({
-        img: img,
-        x: canvas.width/2 - (img.width * 0.3)/2,
-        y: canvas.height/2 - (img.height * 0.3)/2,
-        scale: 0.3
+    const scaleX = 1024 / canvas.width;
+    const scaleY = 1024 / canvas.height;
+
+    // Rita doodles
+    if (toggleBg.checked) {
+      doodles.forEach(function(d) {
+        const w = d.img.width * d.scale * scaleX;
+        const h = d.img.height * d.scale * scaleY;
+        const x = d.x * scaleX;
+        const y = d.y * scaleY;
+        exportCtx.drawImage(d.img, x, y, w, h);
       });
-      
-      draw();
-      console.log("Doodle tillagd:", idx + 1);
-    };
-    
-    // Ta bort senaste
-    document.getElementById("removeDoodleBtn").onclick = function() {
-      if (doodles.length > 0) {
-        doodles.pop();
-        draw();
-      }
-    };
-    
-    // Rensa alla
-    document.getElementById("clearDoodlesBtn").onclick = function() {
-      doodles = [];
-      draw();
-    };
-    
-    // Slider ändring
-    slider.oninput = function() {
-      sliderLabel.innerText = "Doodle " + slider.value;
-    };
-    
-    // Export
-    document.getElementById("exportBtn").onclick = function() {
-      const link = document.createElement("a");
-      link.download = "graffiti_" + Date.now() + ".png";
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    };
-    
-    // Navigation
-    document.getElementById("goToEditorBtn").onclick = function() {
-      location.href = "editor.html";
-    };
-    
-    // ===== RITA FUNKTION =====
-    function draw() {
-      // 1. Rensa canvas med bakgrundsfärg (VIKTIGT!)
-      ctx.fillStyle = "#1a1a1a";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      // 2. Rita doodles (om aktiverat)
-      if (toggleBg.checked) {
-        doodles.forEach(function(d) {
-          const w = d.img.width * d.scale;
-          const h = d.img.height * d.scale;
-          ctx.drawImage(d.img, d.x, d.y, w, h);
-        });
-      }
-      
-      // 3. Rita text (ALLTID)
-      const text = textInput.value || "Skriv något...";
-      const cx = canvas.width / 2;
-      const cy = canvas.height / 2;
-      
-      ctx.font = "bold 80px Ganevia, Arial, sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      
-      // Outline
-      ctx.lineWidth = 8;
-      ctx.strokeStyle = outlineColor.value;
-      ctx.strokeText(text, cx, cy);
-      
-      // Fyllnad
-      ctx.fillStyle = textInput.value ? textColor.value : "#666";
-      ctx.fillText(text, cx, cy);
     }
+
+    // Rita text
+    const text = textInput.value || "Graffiti";
     
-    // Live uppdatering av text/färger
-    textInput.oninput = draw;
-    textColor.oninput = draw;
-    outlineColor.oninput = draw;
-    toggleBg.onchange = draw;
+    exportCtx.font = "bold 120px Ganevia, Arial, sans-serif";
+    exportCtx.textAlign = "center";
+    exportCtx.textBaseline = "middle";
+
+    exportCtx.lineWidth = 10;
+    exportCtx.strokeStyle = outlineColor.value;
+    exportCtx.strokeText(text, 512, 512);
+
+    exportCtx.fillStyle = textColor.value;
+    exportCtx.fillText(text, 512, 512);
+
+    // Spara med transparens
+    const link = document.createElement("a");
+    link.download = "graffiti_transparent_" + Date.now() + ".png";
+    link.href = exportCanvas.toDataURL("image/png");
+    link.click();
+  };
+  
+  document.getElementById("goToEditorBtn").onclick = function() {
+    location.href = "editor.html";
+  };
+  
+  // ===== RITA FUNKTION =====
+  function draw() {
+    // Bakgrund i editorn (inte transparent här, bara i export)
+    ctx.fillStyle = "#1a1a1a";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // ===== DRAG & DROP =====
-    let selectedDoodle = null;
-    let offsetX = 0;
-    let offsetY = 0;
-    
-    canvas.onmousedown = function(e) {
-      const rect = canvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
-      
-      // Kolla bakifrån (överst först)
-      for (let i = doodles.length - 1; i >= 0; i--) {
-        const d = doodles[i];
+    if (toggleBg.checked) {
+      doodles.forEach(function(d) {
         const w = d.img.width * d.scale;
         const h = d.img.height * d.scale;
-        
-        if (mx >= d.x && mx <= d.x + w && my >= d.y && my <= d.y + h) {
-          selectedDoodle = d;
-          offsetX = mx - d.x;
-          offsetY = my - d.y;
-          
-          // Flytta till överst
-          doodles.splice(i, 1);
-          doodles.push(d);
-          draw();
-          break;
-        }
-      }
-    };
+        ctx.drawImage(d.img, d.x, d.y, w, h);
+      });
+    }
     
-    canvas.onmousemove = function(e) {
-      if (selectedDoodle) {
-        const rect = canvas.getBoundingClientRect();
-        selectedDoodle.x = e.clientX - rect.left - offsetX;
-        selectedDoodle.y = e.clientY - rect.top - offsetY;
-        draw();
-      }
-    };
+    const text = textInput.value || "Skriv något...";
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
     
-    canvas.onmouseup = function() {
-      selectedDoodle = null;
-    };
+    ctx.font = "bold 80px Ganevia, Arial, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
     
-    canvas.onmouseleave = function() {
-      selectedDoodle = null;
-    };
+    ctx.lineWidth = 8;
+    ctx.strokeStyle = outlineColor.value;
+    ctx.strokeText(text, cx, cy);
     
-    // Scroll för skala
-    canvas.onwheel = function(e) {
-      if (!selectedDoodle) return;
-      e.preventDefault();
+    ctx.fillStyle = textInput.value ? textColor.value : "#666";
+    ctx.fillText(text, cx, cy);
+  }
+  
+  textInput.oninput = draw;
+  textColor.oninput = draw;
+  outlineColor.oninput = draw;
+  toggleBg.onchange = draw;
+  
+  // ===== DRAG & DROP =====
+  let selectedDoodle = null;
+  let offsetX = 0;
+  let offsetY = 0;
+  
+  canvas.onmousedown = function(e) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    
+    for (let i = doodles.length - 1; i >= 0; i--) {
+      const d = doodles[i];
+      const w = d.img.width * d.scale;
+      const h = d.img.height * d.scale;
       
-      const factor = e.deltaY > 0 ? 0.9 : 1.1;
-      selectedDoodle.scale *= factor;
-      selectedDoodle.scale = Math.max(0.1, Math.min(3, selectedDoodle.scale));
-      draw();
-    };
-    
-    // Delete tangent
-    document.onkeydown = function(e) {
-      if (e.key === "Delete" && document.activeElement !== textInput) {
-        doodles.pop();
+      if (mx >= d.x && mx <= d.x + w && my >= d.y && my <= d.y + h) {
+        selectedDoodle = d;
+        offsetX = mx - d.x;
+        offsetY = my - d.y;
+        doodles.splice(i, 1);
+        doodles.push(d);
         draw();
+        break;
       }
-    };
-  </script>
+    }
+  };
+  
+  canvas.onmousemove = function(e) {
+    if (selectedDoodle) {
+      const rect = canvas.getBoundingClientRect();
+      selectedDoodle.x = e.clientX - rect.left - offsetX;
+      selectedDoodle.y = e.clientY - rect.top - offsetY;
+      draw();
+    }
+  };
+  
+  canvas.onmouseup = function() {
+    selectedDoodle = null;
+  };
+  
+  canvas.onmouseleave = function() {
+    selectedDoodle = null;
+  };
+  
+  canvas.onwheel = function(e) {
+    if (!selectedDoodle) return;
+    e.preventDefault();
+    
+    const factor = e.deltaY > 0 ? 0.9 : 1.1;
+    selectedDoodle.scale *= factor;
+    selectedDoodle.scale = Math.max(0.1, Math.min(3, selectedDoodle.scale));
+    draw();
+  };
+  
+  document.onkeydown = function(e) {
+    if (e.key === "Delete" && document.activeElement !== textInput) {
+      doodles.pop();
+      draw();
+    }
+  };
+</script>
 </body>
 </html>
