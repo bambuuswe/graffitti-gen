@@ -7,38 +7,25 @@ body {
   margin: 0;
   overflow: hidden;
   background: #111;
+  font-family: sans-serif;
   color: white;
 }
 
-#bg {
+canvas {
   position: fixed;
   inset: 0;
   z-index: 0;
-}
-
-#export {
-  display: none;
 }
 
 .ui {
   position: relative;
   z-index: 1;
   text-align: center;
-  margin-top: 18vh;
+  margin-top: 5vh;
 }
 
 input, button {
-  font-size: 16px;
-  padding: 8px;
-}
-
-#output {
-  font-family: "Ganevia";
-  font-size: 80px;
-  margin-top: 25px;
-  text-shadow:
-    -4px -4px black,
-     4px -4px black,
-    -4px  4px black,
-     4px  4px black;
+  margin: 5px;
+  padding: 6px 10px;
+  font-size: 14px;
 }
