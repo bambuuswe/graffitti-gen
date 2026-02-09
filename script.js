@@ -2,8 +2,8 @@ const canvas = document.getElementById("bg");
 const ctx = canvas.getContext("2d");
 
 function resize() {
-  canvas.width = innerWidth;
-  canvas.height = innerHeight;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
   draw();
 }
 window.addEventListener("resize", resize);
@@ -18,7 +18,7 @@ for (let i = 1; i <= 8; i++) {
 }
 
 // ---- DROPPED DOODLES ----
-const doodles = []; // varje element: {img, x, y, scale}
+const doodles = []; // {img, x, y, scale}
 
 // ---- UI ELEMENTS ----
 const textInput = document.getElementById("textInput");
@@ -33,7 +33,12 @@ let selectedDoodle = null;
 let offsetX = 0;
 let offsetY = 0;
 
-// ---- ADD DOODLE FUNCTION ----
+// ---- ADD DOODLE ----
+slider.addEventListener("input", () => {
+  label.innerText = `Doodle ${slider.value}`;
+  addDoodle(slider.value - 1);
+});
+
 function addDoodle(index) {
   const img = doodleImages[index];
   if (!img.complete) return;
@@ -46,20 +51,6 @@ function addDoodle(index) {
   draw();
 }
 
-// ---- SLIDER EVENT ----
-slider.addEventListener("input", () => {
-  label.innerText = `Doodle ${slider.value}`;
-  addDoodle(slider.value - 1);
-});
-
-// ---- TOGGLE BG ----
-toggleBg.addEventListener("change", draw);
-
-// ---- LIVE TEXT ----
-textInput.addEventListener("input", draw);
-textColorInput.addEventListener("input", draw);
-outlineColorInput.addEventListener("input", draw);
-
 // ---- MOUSE EVENTS ----
 canvas.addEventListener("mousedown", e => {
   for (let i = doodles.length - 1; i >= 0; i--) {
@@ -67,23 +58,20 @@ canvas.addEventListener("mousedown", e => {
     const w = d.img.width * d.scale;
     const h = d.img.height * d.scale;
     if (
-      e.offsetX >= d.x &&
-      e.offsetX <= d.x + w &&
-      e.offsetY >= d.y &&
-      e.offsetY <= d.y + h
+      e.offsetX >= d.x && e.offsetX <= d.x + w &&
+      e.offsetY >= d.y && e.offsetY <= d.y + h
     ) {
       selectedDoodle = d;
       offsetX = e.offsetX - d.x;
       offsetY = e.offsetY - d.y;
-      doodles.push(doodles.splice(i, 1)[0]); // flytta längst upp
+      // flytta längst upp
+      doodles.push(doodles.splice(i, 1)[0]);
       break;
     }
   }
 });
-
 canvas.addEventListener("mouseup", () => selectedDoodle = null);
 canvas.addEventListener("mouseleave", () => selectedDoodle = null);
-
 canvas.addEventListener("mousemove", e => {
   if (selectedDoodle) {
     selectedDoodle.x = e.offsetX - offsetX;
@@ -100,6 +88,12 @@ canvas.addEventListener("wheel", e => {
   selectedDoodle.scale = Math.max(0.1, selectedDoodle.scale);
   draw();
 });
+
+// ---- LIVE TEXT ----
+textInput.addEventListener("input", draw);
+textColorInput.addEventListener("input", draw);
+outlineColorInput.addEventListener("input", draw);
+toggleBg.addEventListener("change", draw);
 
 // ---- DRAW EVERYTHING ----
 function draw() {
@@ -140,7 +134,6 @@ function exportPNG() {
   exportCanvas.height = 1024;
   const exportCtx = exportCanvas.getContext("2d");
 
-  // Scale factor
   const scaleX = 1024 / canvas.width;
   const scaleY = 1024 / canvas.height;
 
