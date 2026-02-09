@@ -1,0 +1,24 @@
+body {
+  margin: 0;
+  background: #111;
+  color: white;
+  font-family: sans-serif;
+  text-align: center;
+}
+
+.toolbar {
+  padding: 10px;
+  background: #222;
+}
+
+button, input {
+  margin: 5px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+canvas {
+  margin-top: 10px;
+  background: transparent;
+  cursor: grab;
+}
