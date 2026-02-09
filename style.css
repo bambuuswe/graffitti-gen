@@ -1,0 +1,41 @@
+@font-face {
+  font-family: "Ganevia";
+  src: url("fonts/Ganevia.ttf");
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: #111;
+}
+
+canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+.ui {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin-top: 20vh;
+}
+
+input {
+  font-size: 20px;
+  padding: 10px;
+}
+
+button {
+  font-size: 20px;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+#output {
+  font-family: "Ganevia";
+  font-size: 80px;
+  color: white;
+  text-shadow: 4px 4px black;
+}
