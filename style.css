@@ -19,17 +19,53 @@ canvas {
   top: 0;
   left: 0;
   z-index: 0;
+  /* Viktigt: Se till att canvas inte blockerar klick */
+  pointer-events: auto;
 }
 
 .ui {
   position: relative;
-  z-index: 1;
+  z-index: 10; /* Högre än canvas */
   text-align: center;
-  margin-top: 5vh;
+  margin-top: 2vh;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  border-radius: 10px;
+  display: inline-block;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 90%;
+  pointer-events: auto; /* Se till att UI fångar klick */
 }
 
 input, button {
   margin: 5px;
-  padding: 6px 10px;
+  padding: 8px 12px;
   font-size: 14px;
+  cursor: pointer;
+}
+
+button {
+  background: #333;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background: #555;
+}
+
+button:active {
+  background: #777;
+}
+
+label {
+  margin: 0 10px;
+}
+
+small {
+  display: block;
+  margin-top: 10px;
 }
