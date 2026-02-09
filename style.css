@@ -19,53 +19,100 @@ canvas {
   top: 0;
   left: 0;
   z-index: 0;
-  /* Viktigt: Se till att canvas inte blockerar klick */
-  pointer-events: auto;
+  cursor: crosshair;
 }
 
 .ui {
   position: relative;
-  z-index: 10; /* Högre än canvas */
+  z-index: 10;
   text-align: center;
   margin-top: 2vh;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.85);
   padding: 20px;
   border-radius: 10px;
   display: inline-block;
   left: 50%;
   transform: translateX(-50%);
   max-width: 90%;
-  pointer-events: auto; /* Se till att UI fångar klick */
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid #333;
+  /* Viktigt: Se till att UI fångar alla events */
+  pointer-events: auto;
 }
 
 input, button {
   margin: 5px;
   padding: 8px 12px;
   font-size: 14px;
-  cursor: pointer;
 }
 
 button {
-  background: #333;
+  background: #444;
   color: white;
-  border: 1px solid #555;
+  border: 1px solid #666;
   border-radius: 4px;
-  transition: background 0.2s;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
 button:hover {
-  background: #555;
+  background: #666;
+  transform: translateY(-1px);
 }
 
 button:active {
-  background: #777;
+  background: #888;
+  transform: translateY(0);
+}
+
+.btn-primary {
+  background: #2196F3;
+  border-color: #1976D2;
+  font-weight: bold;
+}
+
+.btn-primary:hover {
+  background: #42A5F5;
+}
+
+.btn-success {
+  background: #4CAF50;
+  border-color: #388E3C;
+  font-weight: bold;
+}
+
+.btn-success:hover {
+  background: #66BB6A;
 }
 
 label {
   margin: 0 10px;
+  cursor: pointer;
 }
 
-small {
-  display: block;
-  margin-top: 10px;
+.doodle-section, .text-section {
+  background: rgba(255,255,255,0.05);
+  padding: 10px;
+  border-radius: 5px;
+  margin: 10px 0;
+}
+
+.help-text {
+  background: rgba(255,255,255,0.05);
+  padding: 10px;
+  border-radius: 5px;
+  text-align: left;
+  line-height: 1.4;
+}
+
+#doodleSlider {
+  width: 200px;
+  vertical-align: middle;
+}
+
+#sliderLabel {
+  font-weight: bold;
+  color: #2196F3;
+  margin: 5px 0;
 }
