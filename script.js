@@ -9,7 +9,7 @@ function resize() {
 window.addEventListener("resize", resize);
 resize();
 
-// ---- DOODLES ----
+// ---- DOODLE IMAGES ----
 const doodleImages = [];
 for (let i = 1; i <= 8; i++) {
   const img = new Image();
@@ -33,18 +33,6 @@ let selectedDoodle = null;
 let offsetX = 0;
 let offsetY = 0;
 
-// ---- ADD DOODLE ON SLIDER CHANGE ----
-slider.addEventListener("input", () => {
-  label.innerText = `Doodle ${slider.value}`;
-  addDoodle(slider.value - 1);
-  draw();
-});
-
-toggleBg.addEventListener("change", draw);
-textInput.addEventListener("input", draw);
-textColorInput.addEventListener("input", draw);
-outlineColorInput.addEventListener("input", draw);
-
 // ---- ADD DOODLE FUNCTION ----
 function addDoodle(index) {
   const img = doodleImages[index];
@@ -55,7 +43,22 @@ function addDoodle(index) {
     y: canvas.height / 2 - 100,
     scale: 1
   });
+  draw();
 }
+
+// ---- SLIDER EVENT ----
+slider.addEventListener("input", () => {
+  label.innerText = `Doodle ${slider.value}`;
+  addDoodle(slider.value - 1);
+});
+
+// ---- TOGGLE BG ----
+toggleBg.addEventListener("change", draw);
+
+// ---- LIVE TEXT ----
+textInput.addEventListener("input", draw);
+textColorInput.addEventListener("input", draw);
+outlineColorInput.addEventListener("input", draw);
 
 // ---- MOUSE EVENTS ----
 canvas.addEventListener("mousedown", e => {
@@ -72,8 +75,7 @@ canvas.addEventListener("mousedown", e => {
       selectedDoodle = d;
       offsetX = e.offsetX - d.x;
       offsetY = e.offsetY - d.y;
-      // flytta den till toppen
-      doodles.push(doodles.splice(i, 1)[0]);
+      doodles.push(doodles.splice(i, 1)[0]); // flytta längst upp
       break;
     }
   }
@@ -103,29 +105,14 @@ canvas.addEventListener("wheel", e => {
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Background doodle (if checked)
-  if (toggleBg.checked && doodles.length === 0) {
-    const img = doodleImages[slider.value - 1];
-    if (img.complete) {
-      for (let i = 0; i < 14; i++) {
-        const size = Math.random() * 220 + 120;
-        ctx.drawImage(
-          img,
-          Math.random() * canvas.width,
-          Math.random() * canvas.height,
-          size,
-          size
-        );
-      }
-    }
+  // Doodles
+  if (toggleBg.checked) {
+    doodles.forEach(d => {
+      const w = d.img.width * d.scale;
+      const h = d.img.height * d.scale;
+      ctx.drawImage(d.img, d.x, d.y, w, h);
+    });
   }
-
-  // User doodles
-  doodles.forEach(d => {
-    const w = d.img.width * d.scale;
-    const h = d.img.height * d.scale;
-    ctx.drawImage(d.img, d.x, d.y, w, h);
-  });
 
   // Text
   const text = textInput.value;
@@ -136,10 +123,12 @@ function draw() {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
+  // Outline
   ctx.lineWidth = 6;
   ctx.strokeStyle = outlineColor;
   ctx.strokeText(text, canvas.width / 2, canvas.height / 2);
 
+  // Fill
   ctx.fillStyle = textColor;
   ctx.fillText(text, canvas.width / 2, canvas.height / 2);
 }
@@ -151,12 +140,16 @@ function exportPNG() {
   exportCanvas.height = 1024;
   const exportCtx = exportCanvas.getContext("2d");
 
-  // User doodles
+  // Scale factor
+  const scaleX = 1024 / canvas.width;
+  const scaleY = 1024 / canvas.height;
+
+  // Doodles
   doodles.forEach(d => {
-    const w = d.img.width * d.scale * (1024 / canvas.width);
-    const h = d.img.height * d.scale * (1024 / canvas.height);
-    const x = d.x * (1024 / canvas.width);
-    const y = d.y * (1024 / canvas.height);
+    const w = d.img.width * d.scale * scaleX;
+    const h = d.img.height * d.scale * scaleY;
+    const x = d.x * scaleX;
+    const y = d.y * scaleY;
     exportCtx.drawImage(d.img, x, y, w, h);
   });
 
