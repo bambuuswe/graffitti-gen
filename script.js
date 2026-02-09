@@ -18,7 +18,7 @@ for (let i = 1; i <= 8; i++) {
 }
 
 // ---- DROPPED DOODLES ----
-const doodles = []; // {img, x, y, scale}
+const doodles = []; // varje element: {img, x, y, scale}
 
 // ---- UI ELEMENTS ----
 const textInput = document.getElementById("textInput");
@@ -27,6 +27,7 @@ const outlineColorInput = document.getElementById("outlineColor");
 const slider = document.getElementById("doodleSlider");
 const label = document.getElementById("sliderLabel");
 const toggleBg = document.getElementById("toggleBg");
+const exportBtn = document.getElementById("exportBtn");
 
 // ---- DRAG & SCALE ----
 let selectedDoodle = null;
@@ -35,8 +36,9 @@ let offsetY = 0;
 
 // ---- ADD DOODLE ----
 slider.addEventListener("input", () => {
+  const index = slider.value - 1;
   label.innerText = `Doodle ${slider.value}`;
-  addDoodle(slider.value - 1);
+  addDoodle(index);
 });
 
 function addDoodle(index) {
@@ -57,14 +59,11 @@ canvas.addEventListener("mousedown", e => {
     const d = doodles[i];
     const w = d.img.width * d.scale;
     const h = d.img.height * d.scale;
-    if (
-      e.offsetX >= d.x && e.offsetX <= d.x + w &&
-      e.offsetY >= d.y && e.offsetY <= d.y + h
-    ) {
+    if (e.offsetX >= d.x && e.offsetX <= d.x + w &&
+        e.offsetY >= d.y && e.offsetY <= d.y + h) {
       selectedDoodle = d;
       offsetX = e.offsetX - d.x;
       offsetY = e.offsetY - d.y;
-      // flytta längst upp
       doodles.push(doodles.splice(i, 1)[0]);
       break;
     }
@@ -90,10 +89,9 @@ canvas.addEventListener("wheel", e => {
 });
 
 // ---- LIVE TEXT ----
-textInput.addEventListener("input", draw);
-textColorInput.addEventListener("input", draw);
-outlineColorInput.addEventListener("input", draw);
-toggleBg.addEventListener("change", draw);
+[textInput, textColorInput, outlineColorInput, toggleBg].forEach(el =>
+  el.addEventListener("input", draw)
+);
 
 // ---- DRAW EVERYTHING ----
 function draw() {
@@ -117,18 +115,16 @@ function draw() {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
-  // Outline
   ctx.lineWidth = 6;
   ctx.strokeStyle = outlineColor;
   ctx.strokeText(text, canvas.width / 2, canvas.height / 2);
 
-  // Fill
   ctx.fillStyle = textColor;
   ctx.fillText(text, canvas.width / 2, canvas.height / 2);
 }
 
 // ---- EXPORT PNG ----
-function exportPNG() {
+exportBtn.addEventListener("click", () => {
   const exportCanvas = document.createElement("canvas");
   exportCanvas.width = 1024;
   exportCanvas.height = 1024;
@@ -166,7 +162,7 @@ function exportPNG() {
   link.download = "graffiti.png";
   link.href = exportCanvas.toDataURL("image/png");
   link.click();
-}
+});
 
 // ---- START ----
 draw();
