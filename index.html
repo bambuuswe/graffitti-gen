@@ -13,7 +13,7 @@
   <div class="ui">
     <!-- Text input -->
     <input id="textInput" placeholder="Skriv din text..." />
-
+    
     <br><br>
 
     <!-- Textfärg & outline -->
@@ -23,10 +23,16 @@
     <br><br>
 
     <!-- Doodle slider -->
+    <label>Välj doodle:</label>
     <input type="range" id="doodleSlider" min="1" max="8" value="1">
     <p id="sliderLabel">Doodle 1</p>
+    
+    <!-- Knappar för doodles -->
+    <button id="addDoodleBtn">➕ Lägg till doodle</button>
+    <button id="removeDoodleBtn">➖ Ta bort senaste</button>
+    <button id="clearDoodlesBtn">🗑️ Rensa alla</button>
 
-    <br>
+    <br><br>
 
     <!-- Toggle bakgrund -->
     <label>
@@ -37,14 +43,21 @@
     <br><br>
 
     <!-- Export knapp -->
-    <button id="exportBtn">Export PNG</button>
+    <button id="exportBtn">💾 Export PNG</button>
 
     <br><br>
 
     <!-- Gå till clothing editor -->
-    <button onclick="location.href='editor.html'">
-      Roblox Clothing Editor
+    <button id="goToEditorBtn">
+      👕 Roblox Clothing Editor
     </button>
+    
+    <br><br>
+    
+    <!-- Hjälp -->
+    <small style="color: #aaa;">
+      💡 Tips: Drag för att flytta doodles | Scroll för att skala | Delete för att ta bort
+    </small>
   </div>
 
   <script src="script.js"></script>
