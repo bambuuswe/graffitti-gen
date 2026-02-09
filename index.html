@@ -10,32 +10,38 @@
   <canvas id="bg"></canvas>
 
   <div class="ui">
+    <!-- Text input -->
     <input id="textInput" placeholder="Skriv din text..." />
+
     <br><br>
 
+    <!-- Textfärg & outline -->
     <label>Textfärg: <input type="color" id="textColor" value="#ffffff"></label>
     <label>Outline-färg: <input type="color" id="outlineColor" value="#000000"></label>
+
     <br><br>
 
-    <button onclick="renderText()">Generera text</button>
-    <br><br>
-
+    <!-- Doodle slider -->
     <input type="range" id="doodleSlider" min="1" max="8" value="1">
     <p id="sliderLabel">Doodle 1</p>
 
+    <!-- Toggle bakgrund -->
     <label>
       <input type="checkbox" id="toggleBg" checked>
       Visa doodles
     </label>
 
     <br><br>
+
+    <!-- Export knapp -->
     <button onclick="exportPNG()">Export PNG</button>
+
     <br><br>
+
+    <!-- Gå till clothing editor -->
     <button onclick="location.href='editor.html'">
       Roblox Clothing Editor
     </button>
-
-    <h1 id="output"></h1>
   </div>
 
   <script src="script.js"></script>
