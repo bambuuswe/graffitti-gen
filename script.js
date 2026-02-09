@@ -4,33 +4,108 @@ const ctx = canvas.getContext("2d");
 function resize() {
   canvas.width = innerWidth;
   canvas.height = innerHeight;
-  draw(); // rita om vid resize
+  draw();
 }
 window.addEventListener("resize", resize);
 resize();
 
 // ---- DOODLES ----
-const doodles = [];
+const doodleImages = [];
 for (let i = 1; i <= 8; i++) {
   const img = new Image();
   img.src = `doodle${i}.png`;
-  doodles.push(img);
+  doodleImages.push(img);
 }
 
-const slider = document.getElementById("doodleSlider");
-const label = document.getElementById("sliderLabel");
-const toggleBg = document.getElementById("toggleBg");
+// ---- DROPPED DOODLES ----
+const doodles = []; // varje element: {img, x, y, scale}
+
+// ---- UI ELEMENTS ----
 const textInput = document.getElementById("textInput");
 const textColorInput = document.getElementById("textColor");
 const outlineColorInput = document.getElementById("outlineColor");
+const slider = document.getElementById("doodleSlider");
+const label = document.getElementById("sliderLabel");
+const toggleBg = document.getElementById("toggleBg");
 
-// ---- DRAW ----
+// ---- DRAG & SCALE ----
+let selectedDoodle = null;
+let offsetX = 0;
+let offsetY = 0;
+
+// ---- ADD DOODLE ON SLIDER CHANGE ----
+slider.addEventListener("input", () => {
+  label.innerText = `Doodle ${slider.value}`;
+  addDoodle(slider.value - 1);
+  draw();
+});
+
+toggleBg.addEventListener("change", draw);
+textInput.addEventListener("input", draw);
+textColorInput.addEventListener("input", draw);
+outlineColorInput.addEventListener("input", draw);
+
+// ---- ADD DOODLE FUNCTION ----
+function addDoodle(index) {
+  const img = doodleImages[index];
+  if (!img.complete) return;
+  doodles.push({
+    img,
+    x: canvas.width / 2 - 100,
+    y: canvas.height / 2 - 100,
+    scale: 1
+  });
+}
+
+// ---- MOUSE EVENTS ----
+canvas.addEventListener("mousedown", e => {
+  for (let i = doodles.length - 1; i >= 0; i--) {
+    const d = doodles[i];
+    const w = d.img.width * d.scale;
+    const h = d.img.height * d.scale;
+    if (
+      e.offsetX >= d.x &&
+      e.offsetX <= d.x + w &&
+      e.offsetY >= d.y &&
+      e.offsetY <= d.y + h
+    ) {
+      selectedDoodle = d;
+      offsetX = e.offsetX - d.x;
+      offsetY = e.offsetY - d.y;
+      // flytta den till toppen
+      doodles.push(doodles.splice(i, 1)[0]);
+      break;
+    }
+  }
+});
+
+canvas.addEventListener("mouseup", () => selectedDoodle = null);
+canvas.addEventListener("mouseleave", () => selectedDoodle = null);
+
+canvas.addEventListener("mousemove", e => {
+  if (selectedDoodle) {
+    selectedDoodle.x = e.offsetX - offsetX;
+    selectedDoodle.y = e.offsetY - offsetY;
+    draw();
+  }
+});
+
+// ---- SCROLL TO SCALE ----
+canvas.addEventListener("wheel", e => {
+  if (!selectedDoodle) return;
+  e.preventDefault();
+  selectedDoodle.scale += e.deltaY * -0.001;
+  selectedDoodle.scale = Math.max(0.1, selectedDoodle.scale);
+  draw();
+});
+
+// ---- DRAW EVERYTHING ----
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Doodles
-  if (toggleBg.checked) {
-    const img = doodles[slider.value - 1];
+  // Background doodle (if checked)
+  if (toggleBg.checked && doodles.length === 0) {
+    const img = doodleImages[slider.value - 1];
     if (img.complete) {
       for (let i = 0; i < 14; i++) {
         const size = Math.random() * 220 + 120;
@@ -44,6 +119,13 @@ function draw() {
       }
     }
   }
+
+  // User doodles
+  doodles.forEach(d => {
+    const w = d.img.width * d.scale;
+    const h = d.img.height * d.scale;
+    ctx.drawImage(d.img, d.x, d.y, w, h);
+  });
 
   // Text
   const text = textInput.value;
@@ -62,16 +144,6 @@ function draw() {
   ctx.fillText(text, canvas.width / 2, canvas.height / 2);
 }
 
-// ---- EVENT LISTENERS för live preview ----
-textInput.addEventListener("input", draw);
-textColorInput.addEventListener("input", draw);
-outlineColorInput.addEventListener("input", draw);
-slider.addEventListener("input", () => {
-  label.innerText = `Doodle ${slider.value}`;
-  draw();
-});
-toggleBg.addEventListener("change", draw);
-
 // ---- EXPORT PNG ----
 function exportPNG() {
   const exportCanvas = document.createElement("canvas");
@@ -79,22 +151,14 @@ function exportPNG() {
   exportCanvas.height = 1024;
   const exportCtx = exportCanvas.getContext("2d");
 
-  // Doodles
-  if (toggleBg.checked) {
-    const img = doodles[slider.value - 1];
-    if (img.complete) {
-      for (let i = 0; i < 14; i++) {
-        const size = Math.random() * 220 + 120;
-        exportCtx.drawImage(
-          img,
-          Math.random() * 1024,
-          Math.random() * 1024,
-          size * 1024 / canvas.width,
-          size * 1024 / canvas.height
-        );
-      }
-    }
-  }
+  // User doodles
+  doodles.forEach(d => {
+    const w = d.img.width * d.scale * (1024 / canvas.width);
+    const h = d.img.height * d.scale * (1024 / canvas.height);
+    const x = d.x * (1024 / canvas.width);
+    const y = d.y * (1024 / canvas.height);
+    exportCtx.drawImage(d.img, x, y, w, h);
+  });
 
   // Text
   const text = textInput.value;
@@ -118,5 +182,5 @@ function exportPNG() {
   link.click();
 }
 
-// ---- Rita första gången ----
+// ---- START ----
 draw();
