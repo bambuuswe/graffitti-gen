@@ -1,6 +1,7 @@
 const canvas = document.getElementById("bg");
 const ctx = canvas.getContext("2d");
 
+// ---- RESIZE CANVAS ----
 function resize() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -18,7 +19,7 @@ for (let i = 1; i <= 8; i++) {
 }
 
 // ---- DROPPED DOODLES ----
-const doodles = []; // varje element: {img, x, y, scale}
+const doodles = []; // {img, x, y, scale}
 
 // ---- UI ELEMENTS ----
 const textInput = document.getElementById("textInput");
