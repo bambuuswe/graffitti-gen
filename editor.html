@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Roblox Clothing Editor</title>
+  <link rel="stylesheet" href="editor.css">
+</head>
+<body>
+
+<div class="toolbar">
+  <button onclick="setTemplate('shirt')">Shirt</button>
+  <button onclick="setTemplate('pants')">Pants</button>
+
+  <input type="file" id="upload" accept="image/*">
+  <button onclick="exportPNG()">Export PNG</button>
+  <button onclick="location.href='index.html'">← Tillbaka</button>
+</div>
+
+<canvas id="canvas" width="1024" height="1024"></canvas>
+
+<script src="editor.js"></script>
+</body>
+</html>
